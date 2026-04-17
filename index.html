@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DApp Annonces de Classe</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+</head>
+<body>
+  <input id="msg" type="text" placeholder="Message de l'annonce" />
+  <button id="btnAdd">Ajouter</button>
+  <button id="btnTotal">Nombre d'annonces</button>
+  <button id="btnGet">Lire annonce #0</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!window.ethereum) {
+        alert("Installe MetaMask !");
+        return;
+      }
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const web3 = new Web3(window.ethereum);
+
+      const abi = [ /* colle ici l'ABI de ClassAnnouncements.json */ ];
+      const addr = "0x..."; // adresse déployée
+
+      const inst = new web3.eth.Contract(abi, addr);
+      const accounts = await web3.eth.getAccounts();
+
+      document.getElementById("btnAdd").onclick = async () => {
+        const msg = document.getElementById("msg").value;
+        await inst.methods.addAnnouncement(msg).send({ from: accounts[0] });
+        alert("Annonce ajoutée !");
+      };
+
+      document.getElementById("btnTotal").onclick = async () => {
+        const total = await inst.methods.totalAnnouncements().call();
+        alert("Total annonces : " + total);
+      };
+
+      document.getElementById("btnGet").onclick = async () => {
+        const ann = await inst.methods.getAnnouncement(0).call();
+        alert("Annonce #0 : " + ann.message + " par " + ann.author);
+      };
+    });
+  </script>
+</body>
+</html>
